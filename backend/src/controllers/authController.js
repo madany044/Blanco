@@ -30,11 +30,22 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
+    const emailNormalized = email.toLowerCase();
+
+    const user = await prisma.user.findUnique({
+      where: { email: emailNormalized },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) return res.status(401).json({ message: "Invalid credentials" });
+    if (!valid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const token = jwt.sign(
       { id: user.id, role: user.role, email: user.email },
@@ -44,13 +55,20 @@ export const login = async (req, res) => {
 
     return res.json({
       token,
-      user: { id: user.id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        contactNumber: user.contactNumber,
+      },
       expiresIn: TOKEN_EXPIRY,
     });
   } catch (err) {
     return res.status(500).json({ message: "Login failed" });
   }
 };
+
 
 export const logout = async (_req, res) => {
   return res.json({ message: "Logged out" });
