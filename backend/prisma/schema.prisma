@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int           @id @default(autoincrement())
+  name           String
+  email          String        @unique
+  passwordHash   String        @map("password_hash")
+  contactNumber  String        @map("contact_number")
+  role           Role          @default(CANDIDATE)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  applications   Application[]
+}
+
+model Application {
+  id                   Int       @id @default(autoincrement())
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               Int       @map("user_id")
+  nativePlace          String?   @map("native_place")
+  highestQualification String?   @map("highest_qualification")
+  teklaYears           Int?      @map("tekla_years")
+  aiscExperience       Boolean?  @map("aisc_experience")
+  editingExperience    Boolean?  @map("editing_experience")
+  checkingExperience   Boolean?  @map("checking_experience")
+  modelingExperience   Boolean?  @map("modeling_experience")
+  leadExperience       String?   @map("lead_experience")
+  technicalSkills      String?   @map("technical_skills")
+  basisForInterview    String?   @map("basis_for_interview")
+  companiesWorked      Int?      @map("companies_worked")
+  currentSalary        Int?      @map("current_salary")
+  lastIncrementDate    DateTime? @map("last_increment_date")
+  reasonForLeaving     String?   @map("reason_for_leaving")
+  expectedSalary       Int?      @map("expected_salary")
+  noticePeriod         String?   @map("notice_period")
+  additionalComments   String?   @map("additional_comments")
+  status               ApplicationStatus @default(DRAFT)
+  adminNotes           String?   @map("admin_notes")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  @@unique([userId])
+}
+
+enum Role {
+  CANDIDATE
+  ADMIN
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  NEW
+  SHORTLISTED
+  REJECTED
+  INTERVIEW_SCHEDULED
+  HIRED
+}
+

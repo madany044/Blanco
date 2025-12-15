@@ -1,0 +1,29 @@
+{
+  "name": "blanco-hiring-backend",
+  "version": "1.0.0",
+  "description": "Blanco hiring portal backend (Express + Prisma + MySQL)",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:dev": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "cookie-parser": "^1.4.7"
+  },
+  "devDependencies": {
+    "prisma": "^5.20.0"
+  }
+}
+
