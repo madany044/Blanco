@@ -31,15 +31,18 @@ const ApplicationForm = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  /* =========================
+     LOAD EXISTING APPLICATION
+     ========================= */
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await api.get("/application/me");
+        const { data } = await api.get("/api/application/me");
         if (data.application) {
           const app = data.application;
           setStatus(app.status);
           setForm({
-            ...form,
+            ...initialForm,
             name: app.user?.name || "",
             contactNumber: app.user?.contactNumber || "",
             nativePlace: app.nativePlace || "",
@@ -63,12 +66,11 @@ const ApplicationForm = () => {
             additionalComments: app.additionalComments || "",
           });
         }
-      } catch {
-        // ignore
+      } catch (err) {
+        console.error("Failed to load application", err);
       }
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const readOnly = status !== "DRAFT";
@@ -77,6 +79,9 @@ const ApplicationForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* =========================
+     BUILD PAYLOAD
+     ========================= */
   const payload = () => ({
     nativePlace: form.nativePlace,
     highestQualification: form.highestQualification,
@@ -98,14 +103,22 @@ const ApplicationForm = () => {
     additionalComments: form.additionalComments,
   });
 
+  /* =========================
+     SAVE / SUBMIT
+     ========================= */
   const save = async (type) => {
     setLoading(true);
     setMessage("");
     try {
-      const route = type === "submit" ? "/application/submit" : "/application/save-draft";
+      const route =
+        type === "submit"
+          ? "/api/application/submit"
+          : "/api/application/save-draft";
+
       const { data } = await api.post(route, payload());
       setStatus(data.application.status);
       setMessage(type === "submit" ? "Application submitted!" : "Draft saved");
+
       if (type === "submit") {
         setTimeout(() => navigate("/dashboard"), 800);
       }
@@ -134,16 +147,11 @@ const ApplicationForm = () => {
       </div>
 
       <form className="mt-6 space-y-6">
+        {/* ---------- Candidate Details ---------- */}
         <Section title="Candidate Details">
           <Grid>
             <Field label="Name" required>
-              <input
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                disabled
-                className="input"
-              />
+              <input name="name" value={form.name} disabled className="input" />
             </Field>
             <Field label="Native Place">
               <input
@@ -175,6 +183,7 @@ const ApplicationForm = () => {
           </Grid>
         </Section>
 
+        {/* ---------- Experience ---------- */}
         <Section title="Experience Details">
           <Grid>
             <Field label="Total years of experience in Tekla">
@@ -187,32 +196,27 @@ const ApplicationForm = () => {
                 className="input"
               />
             </Field>
-            {["aiscExperience", "editingExperience", "checkingExperience", "modelingExperience"].map(
-              (key) => (
-                <Field
-                  key={key}
-                  label={
-                    {
-                      aiscExperience: "AISC experience",
-                      editingExperience: "Editing experience",
-                      checkingExperience: "Checking experience",
-                      modelingExperience: "Modeling experience",
-                    }[key]
-                  }
+
+            {[
+              ["aiscExperience", "AISC experience"],
+              ["editingExperience", "Editing experience"],
+              ["checkingExperience", "Checking experience"],
+              ["modelingExperience", "Modeling experience"],
+            ].map(([key, label]) => (
+              <Field key={key} label={label}>
+                <select
+                  name={key}
+                  value={form[key]}
+                  onChange={handleChange}
+                  disabled={readOnly}
+                  className="input"
                 >
-                  <select
-                    name={key}
-                    value={form[key]}
-                    onChange={handleChange}
-                    disabled={readOnly}
-                    className="input"
-                  >
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                  </select>
-                </Field>
-              )
-            )}
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </Field>
+            ))}
+
             <Field label="Project Lead / Team Lead experience">
               <input
                 name="leadExperience"
@@ -225,6 +229,7 @@ const ApplicationForm = () => {
           </Grid>
         </Section>
 
+        {/* ---------- Technical ---------- */}
         <Section title="Technical Skills">
           <Grid>
             <Field label="Familiarity with Editing / Checking / Modeling">
@@ -248,6 +253,7 @@ const ApplicationForm = () => {
           </Grid>
         </Section>
 
+        {/* ---------- Professional ---------- */}
         <Section title="Professional Details">
           <Grid>
             <Field label="Number of companies worked with">
@@ -311,6 +317,7 @@ const ApplicationForm = () => {
           </Grid>
         </Section>
 
+        {/* ---------- Comments ---------- */}
         <Section title="Additional Comments">
           <Field label="Performance, achievements, strengths">
             <textarea
@@ -342,11 +349,6 @@ const ApplicationForm = () => {
           >
             Submit Application
           </button>
-          {readOnly && (
-            <p className="text-sm text-slate-600">
-              Application is submitted and locked for editing.
-            </p>
-          )}
         </div>
       </form>
     </div>
@@ -374,4 +376,3 @@ const Field = ({ label, required, children }) => (
 );
 
 export default ApplicationForm;
-

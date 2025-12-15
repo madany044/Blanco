@@ -12,7 +12,7 @@ const AdminView = () => {
 
   const load = async () => {
     try {
-      const { data } = await api.get(`/admin/applications/${id}`);
+      const { data } = await api.get(`/api/admin/applications/${id}`);
       setApplication(data.application);
       setNotes(data.application.adminNotes || "");
       setStatus(data.application.status);
@@ -27,13 +27,13 @@ const AdminView = () => {
   }, [id]);
 
   const saveStatus = async () => {
-    await api.put(`/admin/applications/${id}/status`, { status });
+    await api.put(`api/admin/applications/${id}/status`, { status });
     setMessage("Status updated");
     load();
   };
 
   const saveNotes = async () => {
-    await api.put(`/admin/applications/${id}/notes`, { adminNotes: notes });
+    await api.put(`api/admin/applications/${id}/notes`, { adminNotes: notes });
     setMessage("Notes saved");
     load();
   };

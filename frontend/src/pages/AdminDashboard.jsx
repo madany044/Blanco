@@ -30,7 +30,7 @@ const AdminDashboard = () => {
     if (status) params.append("status", status);
     if (minExp) params.append("minExperience", minExp);
     try {
-      const { data } = await api.get(`/admin/applications?${params.toString()}`);
+      const { data } = await api.get(`/api/admin/applications?${params.toString()}`);
       setItems(data.applications);
       setTotal(data.pagination.total);
       setPage(data.pagination.page);
