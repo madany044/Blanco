@@ -1,31 +1,55 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import cookieParser from "cookie-parser";
+
 import authRoutes from "./routes/authRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_URL?.split(",") ?? "*", credentials: true }));
+
+/* =========================
+   CORS CONFIG (PRODUCTION SAFE)
+   ========================= */
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://blanco-hiring.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow non-browser clients (Postman, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  })
+);
+
+/* =========================
+   MIDDLEWARE
+   ========================= */
 app.use(express.json());
-app.use(cookieParser());
 app.use(morgan("dev"));
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok" });
-});
-
+/* =========================
+   ROUTES
+   ========================= */
 app.use("/api/auth", authRoutes);
 app.use("/api/application", applicationRoutes);
 app.use("/api/admin", adminRoutes);
 
-app.use((err, _req, res, _next) => {
-  return res.status(500).json({ message: "Unexpected server error" });
+/* =========================
+   FALLBACK (OPTIONAL)
+   ========================= */
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
 export default app;
-
