@@ -13,25 +13,34 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // ✅ LOGIN
   const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+    const { data } = await api.post("/api/auth/login", {
+      email,
+      password,
+    });
+
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
     setUser(data.user);
+
     return data.user;
   };
 
+  // ✅ REGISTER
   const register = async (payload) => {
-    await api.post("/auth/register", payload);
+    await api.post("/api/auth/register", payload);
     return login(payload.email, payload.password);
   };
 
+  // ✅ LOGOUT
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
-    } catch (e) {
-      // ignore
+      await api.post("/api/auth/logout");
+    } catch {
+      // ignore logout errors
     }
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
@@ -45,4 +54,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-
