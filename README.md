@@ -1,6 +1,6 @@
 # Blanco Hiring Portal
 
-Hiring portal for Blanco covering public job view, candidate application, and admin review.
+Hiring portal for Blanco covering public job view, candidate application, and admin review. [ This Application is Developed for a company Blanco Steel Detailing Services Pvt Ltd ]. which allowed me to showcase my skills and provided the exposure needed to build more applications. 
 
 ## Live Demo 
 http://blanco-hiring.vercel.app
